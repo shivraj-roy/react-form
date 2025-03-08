@@ -1,10 +1,20 @@
+import { useState } from "react";
+
 export default function SignUp() {
+   const [confirmPass, setConfirmPass] = useState(false);
+
    const handleSubmit = (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const acquisition = fd.getAll("acquisition");
       fd.set("acquisition", acquisition.join(", "));
       const data = Object.fromEntries(fd.entries()); //* The Object.fromEntries() method takes an iterable (such as the iterator returned by fd.entries()) and converts it into a plain JavaScript object.
+      if (data.password !== data["confirm-password"]) {
+         setConfirmPass(true);
+         return;
+      }
+      setConfirmPass(false);
+
       console.log(data);
    };
 
@@ -39,6 +49,9 @@ export default function SignUp() {
                   required
                   minLength={6}
                />
+               <div className="control-error">
+                  {confirmPass && <p>Password should match</p>}
+               </div>
             </div>
          </div>
 
@@ -57,7 +70,7 @@ export default function SignUp() {
          </div>
 
          <div className="control">
-            <label htmlFor="phone">What best describes your role?</label>
+            <label htmlFor="role">What best describes your role?</label>
             <select id="role" name="role" required>
                <option value="">Select your role</option>
                <option value="student">Student</option>
