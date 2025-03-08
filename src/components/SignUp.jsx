@@ -1,3 +1,11 @@
+import { useActionState } from "react";
+import {
+   isEmail,
+   isEqualsToOtherValue,
+   isNotEmpty,
+   hasMinLength,
+} from "../util/validation";
+
 export default function SignUp() {
    // ? This approach can be done if you've react v18 or lower version...
    /* const [confirmPass, setConfirmPass] = useState(false);
@@ -15,14 +23,68 @@ export default function SignUp() {
       console.log(data);
    }; */
 
+   // ? This approach can be done if you've react v19 or higher version...
+   const signUpAction = (prev, formData) => {
+      const acquisition = formData.getAll("acquisition");
+      const email = formData.get("email");
+      const password = formData.get("password");
+      const role = formData.get("role");
+      const terms = formData.get("terms");
+      const confirmPassword = formData.get("confirm-password");
+      const firstName = formData.get("first-name");
+      const lastName = formData.get("last-name");
+
+      let errors = [];
+      if (!isEmail(email)) {
+         errors.push("Invalid email");
+      }
+      if (!isNotEmpty(password)) {
+         errors.push("Password is required");
+      }
+      if (!hasMinLength(password, 6)) {
+         errors.push("Password should be at least 6 characters long");
+      }
+      if (!isNotEmpty(confirmPassword)) {
+         errors.push("Confirm password is required");
+      }
+      if (!isEqualsToOtherValue(password, confirmPassword)) {
+         errors.push("Password should match");
+      }
+      if (!isNotEmpty(firstName)) {
+         errors.push("First name is required");
+      }
+      if (!isNotEmpty(lastName)) {
+         errors.push("Last name is required");
+      }
+      if (!isNotEmpty(role)) {
+         errors.push("Role is required");
+      }
+      if (!terms) {
+         errors.push("You must agree to the terms and conditions");
+      }
+      if (acquisition.length === 0) {
+         errors.push("You must select at least one acquisition");
+      }
+
+      if (errors.length > 0) {
+         return { errors };
+      }
+
+      return { errors: null };
+   };
+
+   const [formState, formAction] = useActionState(signUpAction, {
+      errors: null,
+   });
+
    return (
-      <form>
+      <form action={formAction}>
          <h2>Welcome on board!</h2>
          <p>We just need a little bit of data from you to get you started 🚀</p>
 
          <div className="control">
             <label htmlFor="email">Email</label>
-            <input id="email" type="email" name="email" required />
+            <input id="email" type="email" name="email" />
          </div>
 
          <div className="control-row">
@@ -32,7 +94,6 @@ export default function SignUp() {
                   id="password"
                   type="password"
                   name="password"
-                  required
                   minLength={6}
                />
             </div>
@@ -43,12 +104,9 @@ export default function SignUp() {
                   id="confirm-password"
                   type="password"
                   name="confirm-password"
-                  required
                   minLength={6}
                />
-               <div className="control-error">
-                  {<p>Password should match</p>}
-               </div>
+               <div className="control-error"></div>
             </div>
          </div>
 
@@ -57,18 +115,18 @@ export default function SignUp() {
          <div className="control-row">
             <div className="control">
                <label htmlFor="first-name">First Name</label>
-               <input type="text" id="first-name" name="first-name" required />
+               <input type="text" id="first-name" name="first-name" />
             </div>
 
             <div className="control">
                <label htmlFor="last-name">Last Name</label>
-               <input type="text" id="last-name" name="last-name" required />
+               <input type="text" id="last-name" name="last-name" />
             </div>
          </div>
 
          <div className="control">
             <label htmlFor="role">What best describes your role?</label>
-            <select id="role" name="role" required>
+            <select id="role" name="role">
                <option value="">Select your role</option>
                <option value="student">Student</option>
                <option value="teacher">Teacher</option>
@@ -113,15 +171,18 @@ export default function SignUp() {
 
          <div className="control">
             <label htmlFor="terms-and-conditions">
-               <input
-                  type="checkbox"
-                  id="terms-and-conditions"
-                  name="terms"
-                  required
-               />
-               I agree to the terms and conditions
+               <input type="checkbox" id="terms-and-conditions" name="terms" />I
+               agree to the terms and conditions
             </label>
          </div>
+
+         {formState.errors && (
+            <ul className="control-error">
+               {formState.errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+               ))}
+            </ul>
+         )}
 
          <p className="form-actions">
             <button type="reset" className="button button-flat">
