@@ -1,8 +1,6 @@
-import { useState } from "react";
-
 export default function SignUp() {
-   const [confirmPass, setConfirmPass] = useState(false);
-
+   // ? This approach can be done if you've react v18 or lower version...
+   /* const [confirmPass, setConfirmPass] = useState(false);
    const handleSubmit = (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -14,12 +12,11 @@ export default function SignUp() {
          return;
       }
       setConfirmPass(false);
-
       console.log(data);
-   };
+   }; */
 
    return (
-      <form onSubmit={handleSubmit}>
+      <form>
          <h2>Welcome on board!</h2>
          <p>We just need a little bit of data from you to get you started 🚀</p>
 
@@ -50,7 +47,7 @@ export default function SignUp() {
                   minLength={6}
                />
                <div className="control-error">
-                  {confirmPass && <p>Password should match</p>}
+                  {<p>Password should match</p>}
                </div>
             </div>
          </div>
